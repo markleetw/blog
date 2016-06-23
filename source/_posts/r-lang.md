@@ -5,10 +5,10 @@ categories:
 - Technique
 - R
 tags:
-- Resource
+- resource
 ---
 
-{% asset_img slash.jpg Slash %}
+{% asset_img eddie-van-halen.jpg Eddie Van Halen %}
 
 [PTT置底](https://www.ptt.cc/bbs/R_Language/M.1382251406.A.957.html)
 [PTT - R的中文書](https://www.ptt.cc/bbs/R_Language/M.1364963864.A.2AC.html)
