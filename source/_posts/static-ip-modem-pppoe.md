@@ -16,7 +16,7 @@ tags:
 
 # 向ISP申請固定IP
 
-中華電信有提供這個服務，詳情請去[網站](http://service.hinet.net/2004/adslstaticip.php)看看，填一下資料，馬上就會給你一組固定IP，但要注意，這組IP有可能因為維修或其他原因暫時停止或變換，他都會用email通知。
+中華電信有提供這個服務，詳情請去[申請固定IP配發服務](http://service.hinet.net/2004/adslstaticip.php)填寫資料，系統馬上就會給你一組固定IP，但要注意，這組IP有可能因為維修或其他原因暫時停止或變換，他都會用email通知。
 
 # 由數據機使用固定IP自動連線
 

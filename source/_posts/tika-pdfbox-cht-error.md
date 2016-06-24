@@ -5,6 +5,7 @@ categories:
 - Technique
 - Java
 tags:
+- apache
 - library
 ---
 
@@ -19,7 +20,7 @@ PDFBox在解析檔案時，若該PDF含有ETenms-B5-H編碼，則會解析出亂
 
 # 基礎知識
 
-PDF的預設字集是Adobe公司自行編碼的字集「CID字集」，不是大家通用的萬國碼Unicode，所以在讀取內容時，會先透過一個叫做CMap的檔案，對映到CID字集，以便在顯示的時取得正確的字形。
+PDF的預設字集是Adobe公司自行編碼的**CID字集**，不是大家通用的萬國碼Unicode，所以在讀取內容時，會先透過一個叫做CMap的檔案，對映到CID字集，以便在顯示的時取得正確的字形。
 
 舉例來說，ETenms-B5-H的CMap，裡面描述的是怎麼把ETenms-B5-H的編碼對應到CID編碼，這樣PDF檔案如果包含ETenms-B5-H的編碼，開啟檔案時就會透過CMap得到CID編碼並秀出正確的字。
 
