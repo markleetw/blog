@@ -39,7 +39,7 @@ task concatsql(type: SourceTask) {
 
 好像也沒什麼基礎知識，就是encoding的問題。
 
-Ant可以加入`encoding`跟`outputencoding`標籤，請參考[How to encode Java files in UTF-8 using Apache Ant?](http://stackoverflow.com/questions/12374324/how-to-encode-java-files-in-utf-8-using-apache-ant)。
+Ant可以加入`encoding`跟`outputencoding`屬性，請參考[How to encode Java files in UTF-8 using Apache Ant?](http://stackoverflow.com/questions/12374324/how-to-encode-java-files-in-utf-8-using-apache-ant)。
 
 # 解決方法
 
