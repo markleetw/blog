@@ -76,7 +76,7 @@ robotstxt:
   allow:
     - /
     - /archives/
-  sitemap: /sitemap.xml
+  sitemap: http://blog.marksylee.com/sitemap.xml
 theme: skyraker
 
 # Deployment
