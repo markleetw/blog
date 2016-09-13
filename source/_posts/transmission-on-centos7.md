@@ -6,6 +6,7 @@ categories:
 - Linux
 tags:
 - centos
+- transmission
 ---
 
 {% asset_img jeff-beck.jpg Jeff Beck %}

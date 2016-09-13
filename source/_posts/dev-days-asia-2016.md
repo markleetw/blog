@@ -5,7 +5,7 @@ categories:
 - Technique
 - Misc
 tags:
-
+- conf.
 ---
 
 {% asset_img steve-vai.jpg Steve Vai %}
