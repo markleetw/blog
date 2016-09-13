@@ -81,6 +81,6 @@ public class ThreadExample2 implements Runnable {
 2. Process 是 Program 執行時產生的執行個體
 3. Process 下有 Memory Space 和一個以上的 Thread
 4. Memory Space 是同 Process 下所有 Thread 共用，主要用來存放共享的資料及資源
-5. Thread 有自己的 Stack 來儲存區域變數，所以 Thread 的區域變數是互相獨立的
+5. Thread 有自己的 Stack 來儲存函數路徑及區域變數，所以不同 Thread 之間的區域變數是互相獨立的
 6. CPU 會在 Process 之間快速切換來達到多工的目的
 7. CPU 也會根據 Thread 優先權以及 CPU 使用時間，在 Thread 之間切換，讓每個 Thread 都有被執行的機會
