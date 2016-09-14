@@ -14,6 +14,8 @@ tags:
 ### 請簡介 Program、Process 和 Thread 及其差別
 這一題倒是比較少考到，不過為了後面講解多執行緒 (Multi-Thread) 以及 JVM Stack/Heap 方便，所以還是必須要提一下。
 
+> 有些內容比較粗略、粗糙，並不是百分之百準確，內容著重於回答到問題，如果要每個部分確實細講，會變得十分混亂且篇幅驚人。
+
 <!-- more -->
 
 ----
@@ -26,7 +28,7 @@ tags:
 # Process 程序
 **當 Program 被執行時，所產生的執行個體**，Program 被執行就會產生 Process，所以如果同時執行同一個 Program 十次，就會產生至少十個 Process。要切記一點，一顆 CPU 同時只能做一個運算，多工作業系統 (Multitasking Operating System) 可以同時運行多個 Process 是因為它將 Process 進行排程 (Scheduling)，令 CPU 在各 Process 切換，因為速度很快，所以才會有同時處裡好多個 Process 的錯覺。
 
-Process 包含以下兩個部分：
+Process 粗略包含以下兩個部分 *(實際上更複雜，未來再討論)*：
 #### 1. Memory Space 記憶體空間
 所有此Process的共享資料、資源放置於此，同一個 Process 底下的所有 Thread 皆可存取，但是不同 Process 的 Memory Space 不同，Process 彼此之間無法存取對方的 Memory Space。
 #### 2. Thread 執行緒
@@ -34,12 +36,11 @@ Process 包含以下兩個部分：
 ----
 
 # Thread 執行緒
-**CPU 實際運算的部分**，Thread 包含兩個部分：
+**CPU 實際運算的部分**，Thread 包含兩個部分 *(實際上更複雜，未來再討論)*：
 #### 1. Stack 堆疊
 儲存從起點開始 (例如`main`)，到目前為止所有函數呼叫路徑，以及這些呼叫路徑上所用到的區域變數。
 #### 2. CPU 狀態
 存放 CPU 暫存器 (如 Program Counter, Stack Pointer, Program Status Word...) 等狀態，以便在 CPU 再次回來執行時能知道上次執行狀況。
-
 --
 
 一個 Process 包含一個以上的 Thread，以 Java SE 為例，應用程式從起始的入口`main`開始執行，這就是主執行緒 (Main Thread)，如果程式內沒有創建其他 Thread，則稱為單一執行緒；若是程式內有使用類似以下方式去主動創建 Thread，則稱為多執行緒 (Multithreading)。
