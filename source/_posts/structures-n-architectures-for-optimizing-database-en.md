@@ -67,7 +67,7 @@ Like the cons of **Partition**, although **Sharding** solves the bottleneck of e
 
 # Replication
 
-Database **Replication** is a mechanism of automatically copying the data from a database to another one. 
+Database **Replication** is a mechanism of automatically copying the data from a database to another one. With database **Replication**, it's much easier to have multiple database servers provide service to meet the increasing demands.
 
 ### Roles
 
