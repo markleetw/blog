@@ -116,6 +116,6 @@ Advanced clustering techniques rely on real-time memory replication between node
 
 ![Advanced Database Clustering](https://www.percona.com/doc/percona-xtradb-cluster/5.5/_images/cluster-diagram1.png)
 
-This allows each node to operate in both read or write mode, but is ultimately limited by the amount of traffic that can be transmitted between nodes (using a typical network or other high-speed communication mechanism). Therefore, as nodes are added, the communication and memory replication overhead increases geometrically, thus hitting severe scalability limits, often with a relatively small number of nodes. 
+Every node is available to operate both reading and writing, but it's limited by the amount of traffic between nodes (usually using the typical network or other high-speed communication mechanisms). When the nodes are added to the cluster, the communication and memory replication overhead increases geometrically. Since the severe scalability limitation, it's often with a relatively fewer number of nodes.
 
 This solution also suffers from the same shared disk limitations of a traditional cluster, given that a growing, single large database has increasingly intensive disk I/O.
