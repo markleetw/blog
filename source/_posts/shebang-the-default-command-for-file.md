@@ -1,5 +1,5 @@
 ---
-title: Shebang：*nix 中的使用預設程式執行
+title: Shebang：*nix 的使用預設程式執行
 date: 2017-10-13 00:36:09
 categories:
 - Technique
