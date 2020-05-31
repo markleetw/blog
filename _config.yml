@@ -84,3 +84,4 @@ theme: skyraker
 deploy:
   type: git
   repo: git@github.com:marksylee/blog.git
+  branch: gh-pages
