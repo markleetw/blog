@@ -2,14 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://blog.marksylee.com/categories/index.html</loc>
+    <loc>http://blog.marksylee.com/2020/05/31/reading-make-time/</loc>
+    
+    <lastmod>2020-05-31T11:35:18.330Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://blog.marksylee.com/tags/index.html</loc>
     
     <lastmod>2020-05-31T05:49:48.185Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.marksylee.com/tags/index.html</loc>
+    <loc>http://blog.marksylee.com/categories/index.html</loc>
     
     <lastmod>2020-05-31T05:49:48.185Z</lastmod>
     
@@ -72,21 +79,14 @@
   </url>
   
   <url>
-    <loc>http://blog.marksylee.com/2020/05/31/reading-make-time/</loc>
-    
-    <lastmod>2020-05-31T05:49:48.161Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://blog.marksylee.com/2016/06/22/r-lang/</loc>
+    <loc>http://blog.marksylee.com/2016/06/24/pidgin-plugin-for-line/</loc>
     
     <lastmod>2020-05-31T05:49:48.159Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://blog.marksylee.com/2016/06/24/pidgin-plugin-for-line/</loc>
+    <loc>http://blog.marksylee.com/2016/06/22/r-lang/</loc>
     
     <lastmod>2020-05-31T05:49:48.159Z</lastmod>
     
