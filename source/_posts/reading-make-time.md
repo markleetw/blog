@@ -1,5 +1,5 @@
 ---
-title: 《生時間》讀書筆記
+title: 《生時間》讀書心得筆記
 date: 2020-05-31 00:11:30
 categories:
 - Reading
