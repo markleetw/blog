@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>Shebang：*nix 的使用預設程式執行 | Programmer RPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="在 Windows 的世界，我們可以針對不同的檔案類型選擇預設的執行程式，例如 CSV 檔可以設定自動使用 Microsoft Office Excel 開啟，一旦設定好，只需要對著檔案連點兩下就會自動打開 Excel 讀取檔案。 在類 Unix 系統裡（或稱 *nix，包含 Linux、macOS 等等）其實也有類似的功能，稱為 Shebang（或稱 Hashbang），不同的是，Sheba">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shebang：*nix 的使用預設程式執行">
+<meta property="og:url" content="http://blog.marksylee.com/2017/10/13/shebang-the-default-command-for-file/index.html">
+<meta property="og:site_name" content="Programmer RPG">
+<meta property="og:description" content="在 Windows 的世界，我們可以針對不同的檔案類型選擇預設的執行程式，例如 CSV 檔可以設定自動使用 Microsoft Office Excel 開啟，一旦設定好，只需要對著檔案連點兩下就會自動打開 Excel 讀取檔案。 在類 Unix 系統裡（或稱 *nix，包含 Linux、macOS 等等）其實也有類似的功能，稱為 Shebang（或稱 Hashbang），不同的是，Sheba">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="http://blog.marksylee.com/2017/10/13/shebang-the-default-command-for-file/tosin-abasi.jpg">
+<meta property="og:updated_time" content="2020-05-31T05:49:48.162Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Shebang：*nix 的使用預設程式執行">
+<meta name="twitter:description" content="在 Windows 的世界，我們可以針對不同的檔案類型選擇預設的執行程式，例如 CSV 檔可以設定自動使用 Microsoft Office Excel 開啟，一旦設定好，只需要對著檔案連點兩下就會自動打開 Excel 讀取檔案。 在類 Unix 系統裡（或稱 *nix，包含 Linux、macOS 等等）其實也有類似的功能，稱為 Shebang（或稱 Hashbang），不同的是，Sheba">
+<meta name="twitter:image" content="http://blog.marksylee.com/2017/10/13/shebang-the-default-command-for-file/tosin-abasi.jpg">
+    
+
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/open-sans/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-79719838-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+    
+
+</head></html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Programmer RPG</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/.">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/avatar.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/.">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/avatar.png" />
+            <h2 id="name">marksylee</h2>
+            <h3 id="title">Software Developer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Taipei, Taiwan</span>
+            <a id="follow" target="_blank" href="https://github.com/marksylee/">FOLLOW</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                21
+                <span>posts</span>
+            </div>
+            <div class="article-info-block">
+                25
+                <span>tags</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="http://github.com/marksylee/" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/4737172/mark-lee/" target="_blank" title="stack-overflow" class=tooltip>
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://fb.com/marksylee" target="_blank" title="facebook" class=tooltip>
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://tw.linkedin.com/in/marksylee/" target="_blank" title="linkedin" class=tooltip>
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-shebang-the-default-command-for-file" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Shebang：*nix 的使用預設程式執行
+        </h1>
+    
+
+                <div class="article-meta">
+                    
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2017/10/13/shebang-the-default-command-for-file/">
+            <time datetime="2017-10-12T16:36:09.000Z" itemprop="datePublished">2017-10-13</time>
+        </a>
+    </div>
+
+
+                    
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Linux/">Linux</a>
+    </div>
+
+                    
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/python/">python</a>
+    </div>
+
+                </div>
+            </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <img src="/2017/10/13/shebang-the-default-command-for-file/tosin-abasi.jpg" title="Tosin Abasi">
+
+<p>在 Windows 的世界，我們可以針對不同的檔案類型選擇預設的執行程式，例如 CSV 檔可以設定自動使用 Microsoft Office Excel 開啟，一旦設定好，只需要對著檔案連點兩下就會自動打開 Excel 讀取檔案。</p>
+<p>在 <a href="https://zh.wikipedia.org/wiki/%E7%B1%BBUnix%E7%B3%BB%E7%BB%9F" target="_blank" rel="noopener"> 類 Unix 系統 </a> 裡（或稱 *nix，包含 Linux、macOS 等等）其實也有類似的功能，稱為 <a href="https://zh.wikipedia.org/wiki/Shebang" target="_blank" rel="noopener">Shebang</a>（或稱 Hashbang），不同的是，Shebang 是針對各個檔案來設定，而非特定檔案類型。</p>
+<a id="more"></a>
+
+<p>Shebang 通常寫在檔案的第一行，以 <code>#!</code> 為開頭，加上希望用來開啟此檔案的指令（絕對路徑）。</p>
+<blockquote>
+<p>Unix 術語中，井號通常稱為 sharp、hash 或 mesh，驚嘆號則為 bang，Shebang 這個名稱也是由此而來。</p>
+</blockquote>
+<p>舉例來說，假設你在 Python 檔案的第一行加上這樣的 Shebang：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br></pre></td></tr></table></figure>
+
+<p>此時在命令行輸入 <code>./test.py</code> 會等價於 <code>/usr/bin/python test.py</code>。</p>
+<p>當然，如果你有特別想要指定的 Python 直譯器或是其他用來開啟檔案的指令，可以將 Shebang 的路徑改成：</p>
+<ul>
+<li>用指定的 Python 直譯器執行</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/where/is/your/python</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>用 <a href="https://zh.wikipedia.org/zh-tw/Vi" target="_blank" rel="noopener">vi</a> 編輯器開啟</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/where/is/your/vi</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>一般來說，最通用的 Shebang 為（以 <code>python</code> 為例）</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Shebang 僅會在直接開啟檔案時作用，有指名開啟程式的情況下是沒有用的，例如 <code>python test.py</code> 或 <code>vi test.py</code>。</p>
+</blockquote>
+<h3 id="為什麼是 -usr-bin-env-？"><a href="# 為什麼是 -usr-bin-env-？" class="headerlink" title="為什麼是 /usr/bin/env ？"></a>為什麼是 /usr/bin/env ？</h3><p>由於每個人的安裝習慣不同、不同平台的慣例也不同，就像有的人喜歡把軟體裝在 C 槽、把影片放在 D 槽，甚至有的人還會根據類型分門別類地放在不同資料夾底下，我們很難保證 Python 會被安裝在某個固定的位置，如果我們在 Shebang 內將路徑寫死，那會變得很沒彈性。</p>
+<p><code>env</code> 是一套環境變數相關工具（絕對位置是 <code>/usr/bin/env</code>），在 CLI 僅輸入 <code>env</code> 時會列出當下所有環境變數，而輸入 <code>env command</code> 時會執行在 <code>PATH</code> 內找到的 <strong> 第一個</strong> <code>command</code> 。</p>
+<p>也就是說，在 Shebang 設定為 <code>#!/usr/bin/env python</code> 的情況下，無論使用者將 Python 安裝在什麼地方，都會預設使用 <code>PATH</code> 內第一個 <code>python</code> 作為執行指令。</p>
+<p>但是這樣做真的好嗎？</p>
+<p>確實，這個做法可以很輕易地做到跨平台、使用者，不需要去理會各種 Python 安裝路徑，但是缺點也是顯而易見的：首先，我們無法保證 <code>PATH</code> 內的第一個 <code>python</code> 指令就是該使用者慣用或期望使用的指令，或許他常用的 <code>python</code> 直譯器是在 <code>PATH</code> 內的第二或是第三順位，甚至是根本不在 <code>PATH</code> 內；其次，使用 <code>env python</code> 就無法對 Python 直譯器下參數，不過一般來說，這問題對於 Python 這個語言影響並不大。</p>
+<p>其實 Shebang 並非必要的，僅是一個方便的選擇，知道以上的優缺點後，要不要加 Shebang？加什麼 Shebang？就要由開發者自行斟酌囉！</p>
+
+        
+        </div>
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
+</div>
+
+    <a data-url="http://blog.marksylee.com/2017/10/13/shebang-the-default-command-for-file/" data-id="ckaunjmny000r0a1b1yjlya0s" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+        <a href="http://blog.marksylee.com/2017/10/13/shebang-the-default-command-for-file/#comments" class="article-comment-link disqus-comment-count" data-disqus-url="http://blog.marksylee.com/2017/10/13/shebang-the-default-command-for-file/">Comments</a>
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    MarBot Ch. 1 - Listen To Mother&#39;s Words
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Structures and Architectures for Optimizing Database (EN)</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">recent posts</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/05/31/reading-make-time/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/05/31/reading-make-time/make-time-cover.jpg)" alt="《生時間》讀書筆記" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Reading/">Reading</a></p>
+                            <p class="item-title"><a href="/2020/05/31/reading-make-time/" class="title">《生時間》讀書筆記</a></p>
+                            <p class="item-date"><time datetime="2020-05-30T16:11:30.000Z" itemprop="datePublished">2020-05-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/12/09/marbot-ch1-listen-to-mothers-words/orianthi-panagaris.jpg)" alt="MarBot Ch. 1 - Listen To Mother&#39;s Words" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/MarBot/">MarBot</a></p>
+                            <p class="item-title"><a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/" class="title">MarBot Ch. 1 - Listen To Mother&#39;s Words</a></p>
+                            <p class="item-date"><time datetime="2017-12-09T14:10:45.000Z" itemprop="datePublished">2017-12-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/10/13/shebang-the-default-command-for-file/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/10/13/shebang-the-default-command-for-file/tosin-abasi.jpg)" alt="Shebang：*nix 的使用預設程式執行" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Linux/">Linux</a></p>
+                            <p class="item-title"><a href="/2017/10/13/shebang-the-default-command-for-file/" class="title">Shebang：*nix 的使用預設程式執行</a></p>
+                            <p class="item-date"><time datetime="2017-10-12T16:36:09.000Z" itemprop="datePublished">2017-10-13</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/01/28/structures-n-architectures-for-optimizing-database-en/b-b-king.jpg)" alt="Structures and Architectures for Optimizing Database (EN)" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Database/">Database</a></p>
+                            <p class="item-title"><a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" class="title">Structures and Architectures for Optimizing Database (EN)</a></p>
+                            <p class="item-date"><time datetime="2017-01-27T16:44:03.000Z" itemprop="datePublished">2017-01-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/09/14/java-interview-02-jvm-stack-heap/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/09/14/java-interview-02-jvm-stack-heap/stack-heap-example1.PNG)" alt="Java 面試 02 - JVM 的 Stack 和 Heap" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Java/">Java</a></p>
+                            <p class="item-title"><a href="/2016/09/14/java-interview-02-jvm-stack-heap/" class="title">Java 面試 02 - JVM 的 Stack 和 Heap</a></p>
+                            <p class="item-date"><time datetime="2016-09-13T16:08:46.000Z" itemprop="datePublished">2016-09-14</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        <div id="recentcomments" class="widget-wrap">
+  <h3 class="widget-title">recent comments</h3>
+  <script type="text/javascript" src="http://prpg.disqus.com/recent_comments_widget.js?num_items=5&hide_avatars=0&avatar_size=32&excerpt_length=100&hide_mods=0"></script>
+</div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Life/Law/">Law</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/MarBot/">MarBot</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Reading/">Reading</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/">Technique</a><span class="category-list-count">18</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Database/">Database</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/HTML/">HTML</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Java/">Java</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Linux/">Linux</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Misc/">Misc</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/R/">R</a><span class="category-list-count">2</span></li></ul></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">14</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tags</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/adsl/">adsl</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ant/">ant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apache/">apache</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chatbot/">chatbot</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conf/">conf.</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-science/">data science</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gradle/">gradle</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ie/">ie</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interview/">interview</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-interview/">java_interview</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/library/">library</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linebot/">linebot</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/moocs/">moocs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/offenses-against-reputation/">offenses against reputation</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/productivity/">productivity</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/resource/">resource</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/transmission/">transmission</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wordpress/">wordpress</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/adsl/" style="font-size: 10px;">adsl</a> <a href="/tags/ant/" style="font-size: 10px;">ant</a> <a href="/tags/apache/" style="font-size: 15px;">apache</a> <a href="/tags/centos/" style="font-size: 20px;">centos</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/conf/" style="font-size: 10px;">conf.</a> <a href="/tags/data-science/" style="font-size: 10px;">data science</a> <a href="/tags/gradle/" style="font-size: 10px;">gradle</a> <a href="/tags/heroku/" style="font-size: 10px;">heroku</a> <a href="/tags/ie/" style="font-size: 10px;">ie</a> <a href="/tags/interview/" style="font-size: 15px;">interview</a> <a href="/tags/java-interview/" style="font-size: 15px;">java_interview</a> <a href="/tags/library/" style="font-size: 10px;">library</a> <a href="/tags/linebot/" style="font-size: 10px;">linebot</a> <a href="/tags/moocs/" style="font-size: 10px;">moocs</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/offenses-against-reputation/" style="font-size: 10px;">offenses against reputation</a> <a href="/tags/optimization/" style="font-size: 10px;">optimization</a> <a href="/tags/productivity/" style="font-size: 10px;">productivity</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/resource/" style="font-size: 10px;">resource</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/transmission/" style="font-size: 10px;">transmission</a> <a href="/tags/ubuntu/" style="font-size: 15px;">ubuntu</a> <a href="/tags/wordpress/" style="font-size: 10px;">wordpress</a>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2020 marksylee<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+        </div>
+    </div>
+</footer>
+        
+    
+    <script>
+    var disqus_shortname = 'prpg';
+    
+    
+    var disqus_url = 'http://blog.marksylee.com/2017/10/13/shebang-the-default-command-for-file/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

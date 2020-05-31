@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>Structures and Architectures for Optimizing Database (EN) | Programmer RPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="Recently, I read the XtraDB part of Percona Server document roughly, in this process, I realized my huge lack of basic database knowledge, so it’s inevitable to spend a lot of time on clarifying man">
+<meta name="keywords" content="mysql,optimization">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Structures and Architectures for Optimizing Database (EN)">
+<meta property="og:url" content="http://blog.marksylee.com/2017/01/28/structures-n-architectures-for-optimizing-database-en/index.html">
+<meta property="og:site_name" content="Programmer RPG">
+<meta property="og:description" content="Recently, I read the XtraDB part of Percona Server document roughly, in this process, I realized my huge lack of basic database knowledge, so it’s inevitable to spend a lot of time on clarifying man">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="http://blog.marksylee.com/2017/01/28/structures-n-architectures-for-optimizing-database-en/b-b-king.jpg">
+<meta property="og:updated_time" content="2020-05-31T05:49:48.170Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Structures and Architectures for Optimizing Database (EN)">
+<meta name="twitter:description" content="Recently, I read the XtraDB part of Percona Server document roughly, in this process, I realized my huge lack of basic database knowledge, so it’s inevitable to spend a lot of time on clarifying man">
+<meta name="twitter:image" content="http://blog.marksylee.com/2017/01/28/structures-n-architectures-for-optimizing-database-en/b-b-king.jpg">
+    
+
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/open-sans/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-79719838-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+    
+
+</head></html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Programmer RPG</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/.">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/avatar.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/.">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/avatar.png" />
+            <h2 id="name">marksylee</h2>
+            <h3 id="title">Software Developer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Taipei, Taiwan</span>
+            <a id="follow" target="_blank" href="https://github.com/marksylee/">FOLLOW</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                21
+                <span>posts</span>
+            </div>
+            <div class="article-info-block">
+                25
+                <span>tags</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="http://github.com/marksylee/" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/4737172/mark-lee/" target="_blank" title="stack-overflow" class=tooltip>
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://fb.com/marksylee" target="_blank" title="facebook" class=tooltip>
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://tw.linkedin.com/in/marksylee/" target="_blank" title="linkedin" class=tooltip>
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-structures-n-architectures-for-optimizing-database-en" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Structures and Architectures for Optimizing Database (EN)
+        </h1>
+    
+
+                <div class="article-meta">
+                    
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/">
+            <time datetime="2017-01-27T16:44:03.000Z" itemprop="datePublished">2017-01-28</time>
+        </a>
+    </div>
+
+
+                    
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Database/">Database</a>
+    </div>
+
+                    
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/mysql/">mysql</a>, <a class="tag-link" href="/tags/optimization/">optimization</a>
+    </div>
+
+                </div>
+            </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <img src="/2017/01/28/structures-n-architectures-for-optimizing-database-en/b-b-king.jpg" title="B.B. King">
+
+<p>Recently, I read the <strong>XtraDB</strong> part of <strong>Percona Server</strong> document roughly, in this process, I realized my huge lack of basic database knowledge, so it’s inevitable to spend a lot of time on clarifying many concepts which have been mentioned several times in the doc. </p>
+<p>In the meanwhile, I found out that there’s so much incorrect and ambiguous information on the internet, for the greater good, it could be great if I organize these all materials and post them on this blog. This article contain a few MySQL only usage, but it’s won’t cut down the readability for the reader who is not familiar with MySQL (perhaps…).</p>
+<p>Why use English? Due to most of the info I collect are written in English and I don’t have enough time to translate them. But don’t worry, I’ll post a Chinese version someday.</p>
+<a id="more"></a>
+
+<h1 id="Brief-Intro"><a href="#Brief-Intro" class="headerlink" title="Brief Intro"></a>Brief Intro</h1><p>As data growth, the performance of database server will become worse gradually. When there are only hundreds of rows in a table, we basically don’t need to care about the quality of query statements, but once a query involves hundred of thousand of rows, that could be an issue.</p>
+<p>To ease this problem, MySQL 5.7 provides the <code>MAX_EXECUTE_TIME</code> feature to avoid your query sucks. <a href="https://dev.mysql.com/doc/refman/5.7/en/optimizer-hints.html#optimizer-hints-execution-time" target="_blank" rel="noopener">(more)</a></p>
+<p>But what if we have hundred of millions of data in the server? That won’t be that simple. Fortunately, developers have multiple ways to deal with performance problems.</p>
+<hr>
+<h1 id="Partition"><a href="#Partition" class="headerlink" title="Partition"></a>Partition</h1><p><strong>Partition</strong> is the way to split the data of a table into multiple tables by rows or columns, according to different divides, it can be classified into <strong>Horizontal Partition</strong> and <strong>Vertical Partition</strong>. </p>
+<h3 id="Horizontal-Partition"><a href="#Horizontal-Partition" class="headerlink" title="Horizontal Partition"></a>Horizontal Partition</h3><img src="/2017/01/28/structures-n-architectures-for-optimizing-database-en/horizontal_partition.png" title="Horizontal Partition">
+
+<h3 id="Vertical-Partition"><a href="#Vertical-Partition" class="headerlink" title="Vertical Partition"></a>Vertical Partition</h3><p><em>(<a href="https://dev.mysql.com/doc/refman/5.7/en/partitioning-types.html" target="_blank" rel="noopener">MySQL</a> 5.7 does <strong>not</strong> support it)</em></p>
+<img src="/2017/01/28/structures-n-architectures-for-optimizing-database-en/vertical_partition.png" title="Vertical Partition">
+
+<p>Obviously, <strong>Partition</strong> can reduce the effort of querying the tables with fewer indexes and the amounts of data, but the shortcomings are also evident:</p>
+<ol>
+<li>Developers need to spend more resources to maintain the data.</li>
+<li>The capability of execution is the bottleneck because there’s still one server deals with all commands.</li>
+<li>Almost zero benefit for operations of whole table select, insert, update and delete.</li>
+</ol>
+<hr>
+<h1 id="Sharding"><a href="#Sharding" class="headerlink" title="Sharding"></a>Sharding</h1><blockquote>
+<p>A database shard is a horizontal partition of data in a database.<br>– Wikipedia, “<a href="https://en.wikipedia.org/wiki/Shard_%28database_architecture%29" target="_blank" rel="noopener">Shard (database architecture)</a>“</p>
+</blockquote>
+<p><strong>Sharding</strong> is a type of <strong>horizontal partition</strong>, the rows in a table will be separated into multiple tables, and the most important is, these tables will be stored on the different servers. So it’s possible that the system needs to get <code>order</code> data of <code>user_A</code> from <code>DB_01</code> and <code>user_B</code> from <code>DB_02</code>. </p>
+<p><img src="http://www.cubrid.org/manual/91/en/_images/image39.png" alt="Sharding"></p>
+<p>Some articles say that <strong>Sharding</strong> is <strong>Horizontal Partition</strong> and <strong>Horizontal Partition</strong> is <strong>Sharding</strong>, but it’s not perfectly true because the <strong>Horizontal Partition</strong> describes the data in a large table is divided by rows and stored in the multiple relative small tables whether in the same or different server(s).</p>
+<p>Like the cons of <strong>Partition</strong>, although <strong>Sharding</strong> solves the bottleneck of execution capability through multiple machines collaboration, it leads to the data scattered in the different tables of various database servers, so it’s still a pain in the ass to maintain these shards.</p>
+<hr>
+<h1 id="Replication"><a href="#Replication" class="headerlink" title="Replication"></a>Replication</h1><p>Database <strong>Replication</strong> is a mechanism of automatically copying the data from a database to another one. With database <strong>Replication</strong>, it’s much easier to have multiple database servers provide service to meet the increasing demands.</p>
+<h3 id="Roles"><a href="#Roles" class="headerlink" title="Roles"></a>Roles</h3><p>There are two roles in the database <strong>Replication</strong>:</p>
+<ol>
+<li><strong>Master Server</strong> is available to handle both read and write (CRUD) operations, and the data in master will replicate to slave(s).</li>
+<li><strong>Slave Server</strong> can only read the data from its disk.</li>
+</ol>
+<p>Since the data in <strong>Slave Server</strong> is synchronized from <strong>Master Server</strong>, it could cause some serious consistency problems. When the data updated in <strong>Master Server</strong> and the replication hasn’t performed or is performing, the user may get old data from <strong>Slave Server</strong>.</p>
+<h3 id="Topology-for-Database-Replication"><a href="#Topology-for-Database-Replication" class="headerlink" title="Topology for Database Replication"></a>Topology for Database Replication</h3><p>Here come some common relationships for database <strong>Replication</strong>.</p>
+<ol>
+<li><p>Master/Slave(s)<br><img src="http://www.cubrid.org/files/attach/images/185528/671/186/image004.png" alt="Master-Slave Replication"></p>
+</li>
+<li><p>Master/Master<br><img src="https://severalnines.com/sites/default/files/resources/tutorials/mysql-replication-tutorial/image13.png" alt="Master-Master Replication"></p>
+</li>
+<li><p>Others <em><a href="http://severalnines.com/resources/tutorials/mysql-replication-high-availability-tutorial" target="_blank" rel="noopener">(more)</a></em><br>ex. Multi-Source Replication<br><img src="https://severalnines.com/sites/default/files/resources/tutorials/mysql-replication-tutorial/image15.png" alt="Multi-Source Replication"></p>
+</li>
+</ol>
+<ul>
+<li>Check <a href="https://www.percona.com/blog/2013/01/09/how-does-mysql-replication-really-work/" target="_blank" rel="noopener">this</a> if you’re curious how does MySQL replication work.</li>
+</ul>
+<hr>
+<h1 id="Clustering"><a href="#Clustering" class="headerlink" title="Clustering"></a>Clustering</h1><p>Clustering means many database servers (usually named nodes) operating in a group, there are multiple ways to do this.</p>
+<h3 id="Common-Scenario"><a href="#Common-Scenario" class="headerlink" title="Common Scenario"></a>Common Scenario</h3><p>The most common scenario is, several nodes access the same centralized shared disk, most of nodes used for reads and only one for write (CRUD) operations. </p>
+<p><img src="http://programming4.us/image/022012/Achieving%20Performance,%20Scalability,%20and%20Availability%20Objectives_2.jpg" alt="Shared Disk Cluster"></p>
+<p>This method provides a better performance of reading data, in additional, once a failure rises in a node, another node will take over the task (this feature is named failover). </p>
+<p>But it also has obvious Achilles’ heel, limited scalability, first, there’s only one DB node takes charge of CRUD operations; second, the read limitations are particularly evident when an application requires complex joins or contains non-optimized SQL statements.</p>
+<h3 id="Advanced-Clustering"><a href="#Advanced-Clustering" class="headerlink" title="Advanced Clustering"></a>Advanced Clustering</h3><p>Advanced clustering techniques rely on real-time memory replication between nodes, keeping the memory image of nodes in the cluster up to date via a real-time messaging system. </p>
+<p><img src="https://www.percona.com/doc/percona-xtradb-cluster/5.5/_images/cluster-diagram1.png" alt="Advanced Database Clustering"></p>
+<p>Every node is available to operate both reading and writing, but it’s limited by the amount of traffic between nodes (usually using the typical network or other high-speed communication mechanisms). When the nodes are added to the cluster, the communication and memory replication overhead increases geometrically. Since the severe scalability limitation, it’s often with a relatively fewer number of nodes.</p>
+<p>This solution also suffers from the same shared disk limitations of a traditional cluster, given that a growing, single large database has increasingly intensive disk I/O.</p>
+
+        
+        </div>
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
+</div>
+
+    <a data-url="http://blog.marksylee.com/2017/01/28/structures-n-architectures-for-optimizing-database-en/" data-id="ckaunjmo500120a1btwd74rbw" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+        <a href="http://blog.marksylee.com/2017/01/28/structures-n-architectures-for-optimizing-database-en/#comments" class="article-comment-link disqus-comment-count" data-disqus-url="http://blog.marksylee.com/2017/01/28/structures-n-architectures-for-optimizing-database-en/">Comments</a>
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2017/10/13/shebang-the-default-command-for-file/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    Shebang：*nix 的使用預設程式執行
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2016/09/14/java-interview-02-jvm-stack-heap/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Java 面試 02 - JVM 的 Stack 和 Heap</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">recent posts</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/05/31/reading-make-time/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/05/31/reading-make-time/make-time-cover.jpg)" alt="《生時間》讀書筆記" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Reading/">Reading</a></p>
+                            <p class="item-title"><a href="/2020/05/31/reading-make-time/" class="title">《生時間》讀書筆記</a></p>
+                            <p class="item-date"><time datetime="2020-05-30T16:11:30.000Z" itemprop="datePublished">2020-05-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/12/09/marbot-ch1-listen-to-mothers-words/orianthi-panagaris.jpg)" alt="MarBot Ch. 1 - Listen To Mother&#39;s Words" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/MarBot/">MarBot</a></p>
+                            <p class="item-title"><a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/" class="title">MarBot Ch. 1 - Listen To Mother&#39;s Words</a></p>
+                            <p class="item-date"><time datetime="2017-12-09T14:10:45.000Z" itemprop="datePublished">2017-12-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/10/13/shebang-the-default-command-for-file/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/10/13/shebang-the-default-command-for-file/tosin-abasi.jpg)" alt="Shebang：*nix 的使用預設程式執行" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Linux/">Linux</a></p>
+                            <p class="item-title"><a href="/2017/10/13/shebang-the-default-command-for-file/" class="title">Shebang：*nix 的使用預設程式執行</a></p>
+                            <p class="item-date"><time datetime="2017-10-12T16:36:09.000Z" itemprop="datePublished">2017-10-13</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/01/28/structures-n-architectures-for-optimizing-database-en/b-b-king.jpg)" alt="Structures and Architectures for Optimizing Database (EN)" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Database/">Database</a></p>
+                            <p class="item-title"><a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" class="title">Structures and Architectures for Optimizing Database (EN)</a></p>
+                            <p class="item-date"><time datetime="2017-01-27T16:44:03.000Z" itemprop="datePublished">2017-01-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/09/14/java-interview-02-jvm-stack-heap/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/09/14/java-interview-02-jvm-stack-heap/stack-heap-example1.PNG)" alt="Java 面試 02 - JVM 的 Stack 和 Heap" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Java/">Java</a></p>
+                            <p class="item-title"><a href="/2016/09/14/java-interview-02-jvm-stack-heap/" class="title">Java 面試 02 - JVM 的 Stack 和 Heap</a></p>
+                            <p class="item-date"><time datetime="2016-09-13T16:08:46.000Z" itemprop="datePublished">2016-09-14</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        <div id="recentcomments" class="widget-wrap">
+  <h3 class="widget-title">recent comments</h3>
+  <script type="text/javascript" src="http://prpg.disqus.com/recent_comments_widget.js?num_items=5&hide_avatars=0&avatar_size=32&excerpt_length=100&hide_mods=0"></script>
+</div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Life/Law/">Law</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/MarBot/">MarBot</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Reading/">Reading</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/">Technique</a><span class="category-list-count">18</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Database/">Database</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/HTML/">HTML</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Java/">Java</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Linux/">Linux</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Misc/">Misc</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/R/">R</a><span class="category-list-count">2</span></li></ul></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">14</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tags</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/adsl/">adsl</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ant/">ant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apache/">apache</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chatbot/">chatbot</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conf/">conf.</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-science/">data science</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gradle/">gradle</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ie/">ie</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interview/">interview</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-interview/">java_interview</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/library/">library</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linebot/">linebot</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/moocs/">moocs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/offenses-against-reputation/">offenses against reputation</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/productivity/">productivity</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/resource/">resource</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/transmission/">transmission</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wordpress/">wordpress</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/adsl/" style="font-size: 10px;">adsl</a> <a href="/tags/ant/" style="font-size: 10px;">ant</a> <a href="/tags/apache/" style="font-size: 15px;">apache</a> <a href="/tags/centos/" style="font-size: 20px;">centos</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/conf/" style="font-size: 10px;">conf.</a> <a href="/tags/data-science/" style="font-size: 10px;">data science</a> <a href="/tags/gradle/" style="font-size: 10px;">gradle</a> <a href="/tags/heroku/" style="font-size: 10px;">heroku</a> <a href="/tags/ie/" style="font-size: 10px;">ie</a> <a href="/tags/interview/" style="font-size: 15px;">interview</a> <a href="/tags/java-interview/" style="font-size: 15px;">java_interview</a> <a href="/tags/library/" style="font-size: 10px;">library</a> <a href="/tags/linebot/" style="font-size: 10px;">linebot</a> <a href="/tags/moocs/" style="font-size: 10px;">moocs</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/offenses-against-reputation/" style="font-size: 10px;">offenses against reputation</a> <a href="/tags/optimization/" style="font-size: 10px;">optimization</a> <a href="/tags/productivity/" style="font-size: 10px;">productivity</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/resource/" style="font-size: 10px;">resource</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/transmission/" style="font-size: 10px;">transmission</a> <a href="/tags/ubuntu/" style="font-size: 15px;">ubuntu</a> <a href="/tags/wordpress/" style="font-size: 10px;">wordpress</a>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2020 marksylee<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+        </div>
+    </div>
+</footer>
+        
+    
+    <script>
+    var disqus_shortname = 'prpg';
+    
+    
+    var disqus_url = 'http://blog.marksylee.com/2017/01/28/structures-n-architectures-for-optimizing-database-en/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

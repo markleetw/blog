@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>Java 面試 02 - JVM 的 Stack 和 Heap | Programmer RPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="請比較 JVM 記憶體的 Stack 和 Heap這題非常容易考到，而且翻譯十分混亂，盡量用原文去表達比較好，Stack 繁中為堆疊、簡中為棧，Heap 繁中為堆積、簡中為堆。 要特別注意的是，這邊的 Stack 和 Heap 並不是在指資料結構，而是指 JVM 記憶體管理的部分。">
+<meta name="keywords" content="interview,java_interview">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java 面試 02 - JVM 的 Stack 和 Heap">
+<meta property="og:url" content="http://blog.marksylee.com/2016/09/14/java-interview-02-jvm-stack-heap/index.html">
+<meta property="og:site_name" content="Programmer RPG">
+<meta property="og:description" content="請比較 JVM 記憶體的 Stack 和 Heap這題非常容易考到，而且翻譯十分混亂，盡量用原文去表達比較好，Stack 繁中為堆疊、簡中為棧，Heap 繁中為堆積、簡中為堆。 要特別注意的是，這邊的 Stack 和 Heap 並不是在指資料結構，而是指 JVM 記憶體管理的部分。">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="http://blog.marksylee.com/2016/09/14/java-interview-02-jvm-stack-heap/stack-heap-example1.PNG">
+<meta property="og:updated_time" content="2020-05-31T05:49:48.146Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java 面試 02 - JVM 的 Stack 和 Heap">
+<meta name="twitter:description" content="請比較 JVM 記憶體的 Stack 和 Heap這題非常容易考到，而且翻譯十分混亂，盡量用原文去表達比較好，Stack 繁中為堆疊、簡中為棧，Heap 繁中為堆積、簡中為堆。 要特別注意的是，這邊的 Stack 和 Heap 並不是在指資料結構，而是指 JVM 記憶體管理的部分。">
+<meta name="twitter:image" content="http://blog.marksylee.com/2016/09/14/java-interview-02-jvm-stack-heap/stack-heap-example1.PNG">
+    
+
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/open-sans/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-79719838-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+    
+
+</head></html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Programmer RPG</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/.">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/avatar.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/.">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/avatar.png" />
+            <h2 id="name">marksylee</h2>
+            <h3 id="title">Software Developer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Taipei, Taiwan</span>
+            <a id="follow" target="_blank" href="https://github.com/marksylee/">FOLLOW</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                21
+                <span>posts</span>
+            </div>
+            <div class="article-info-block">
+                25
+                <span>tags</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="http://github.com/marksylee/" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/4737172/mark-lee/" target="_blank" title="stack-overflow" class=tooltip>
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://fb.com/marksylee" target="_blank" title="facebook" class=tooltip>
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://tw.linkedin.com/in/marksylee/" target="_blank" title="linkedin" class=tooltip>
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-java-interview-02-jvm-stack-heap" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            Java 面試 02 - JVM 的 Stack 和 Heap
+        </h1>
+    
+
+                <div class="article-meta">
+                    
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2016/09/14/java-interview-02-jvm-stack-heap/">
+            <time datetime="2016-09-13T16:08:46.000Z" itemprop="datePublished">2016-09-14</time>
+        </a>
+    </div>
+
+
+                    
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Java/">Java</a>
+    </div>
+
+                    
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/interview/">interview</a>, <a class="tag-link" href="/tags/java-interview/">java_interview</a>
+    </div>
+
+                </div>
+            </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <img src="/2016/09/14/java-interview-02-jvm-stack-heap/stack-heap-example1.PNG">
+
+<h3 id="請比較 -JVM- 記憶體的 -Stack- 和 -Heap"><a href="# 請比較 -JVM- 記憶體的 -Stack- 和 -Heap" class="headerlink" title="請比較 JVM 記憶體的 Stack 和 Heap"></a>請比較 JVM 記憶體的 Stack 和 Heap</h3><p>這題非常容易考到，而且翻譯十分混亂，盡量用原文去表達比較好，Stack 繁中為 <strong> 堆疊 </strong>、簡中為<strong> 棧</strong>，Heap 繁中為 <strong> 堆積 </strong>、簡中為<strong> 堆</strong>。</p>
+<p>要特別注意的是，這邊的 Stack 和 Heap 並不是在指資料結構，而是指 <strong>JVM 記憶體管理 </strong> 的部分。</p>
+<a id="more"></a>
+
+<blockquote>
+<p><strong>聲明：</strong></p>
+<p>這些內容比較簡略、粗糙，忽略了很多細節，只揀選能回答到問題的部份去解說，並不是百分之百準確，除非每一題都有兩個小時以上的回答時間，否則這些內容應該足夠回答到面試官想聽的點。如果你真的很在乎每一個部份的細節內容，你不該讀我的筆記，而是去讀文件，自己寫自己的筆記。當然，我會隨著越講越深入而帶入更多細節的部份，但是我也需要考量文章篇幅以及流暢度。</p>
+<p><strong>若有任何錯誤或遺漏之處，請在底下用力鞭我，不用客氣，隱瞞缺失比直指痛處更讓人害怕。</strong></p>
+</blockquote>
+<hr>
+<p>首先，Java 檔經過編譯後所產生的 Class 檔 (bytecode)，只能運行在 JVM 上，而 JVM 在運算時，如同一般電腦一樣，需要記憶體儲存運算所需的資料及指令，而 JVM 記憶體中的 <strong>Stack</strong> 和 <strong>Heap</strong> 最常被拿來做比較 (記憶體中當然還有其他部份，包括 Method Area、PC Register、Native Method Stack，但不在本篇討論範圍)。</p>
+<p><strong>JVM 記憶體的 Stack 和 Heap 絕對不要和其他同名的東西搞混，在這裡是做為 JVM 儲存資料或指令的區域，和其他同名的東西無關，請把它當作平行宇宙看待。</strong></p>
+<hr>
+<h1 id="Java- 中的資料型態"><a href="#Java- 中的資料型態" class="headerlink" title="Java 中的資料型態"></a>Java 中的資料型態 </h1><p> 分為兩種：</p>
+<h4 id="1-Primitive-Type- 基本型態"><a href="#1-Primitive-Type- 基本型態" class="headerlink" title="1. Primitive Type 基本型態"></a>1. Primitive Type 基本型態</h4><ul>
+<li>共有 8 種：<strong><em>int</em></strong>、<strong><em>short</em></strong>、<strong><em>long</em></strong>、<strong><em>byte</em></strong>、<strong><em>float</em></strong>、<strong><em>double</em></strong>、<strong><em>boolean</em></strong>、<strong><em>char</em></strong>。</li>
+<li>這種類型是通過如 <code>int a = 3; long b = 123L;</code>的方式宣告。</li>
+<li>長度及生命週期都為可知 (程式碼區塊執行完就扔掉)。</li>
+<li>運算速度快，但長度與內容受限。</li>
+</ul>
+<h4 id="2-Class-Type-Reference-Type- 類別型態 - 參考型態"><a href="#2-Class-Type-Reference-Type- 類別型態 - 參考型態" class="headerlink" title="2. Class Type / Reference Type 類別型態 / 參考型態"></a>2. Class Type / Reference Type 類別型態 / 參考型態</h4><ul>
+<li>其他大都屬於此類別，如 <strong><em>Integer</em></strong>、<strong><em>String</em></strong>、<strong><em>Long</em></strong> 以及自行定義的類別 (ex. <strong><em>User</em></strong>) 等。</li>
+<li>這種類型通常都需要用 <strong><em>new</em></strong> 去創建，如 <code>User user = new User(&quot;Mark&quot;);</code>。</li>
+<li>因為是在執行時才動態創建，所以長度及生命週期都不可預知。</li>
+<li>靈活但運算較耗時。</li>
+</ul>
+<hr>
+<h1 id="Stack- 堆疊、棧"><a href="#Stack- 堆疊、棧" class="headerlink" title="Stack 堆疊、棧"></a>Stack 堆疊、棧 </h1><p> 複習一下 <a href="http://blog.marksylee.com/2016/09/13/java-interview-01-program-process-thread/"><strong>前一章 </strong></a> 所提到的：<strong> 每一個 Thread 擁有自己的 Stack，Stack 是用來儲存函數路徑及區域變數，Thread 之間的 Stack 互相獨立。</strong></p>
+<p>Stack 是一種 <strong> 後進先出 (FILO)</strong> 的容器，具有存取速度快和管理簡單的特點。由於 Java 中變數跟函式的生命週期都為 <strong> 後進先出 </strong>，也就是越晚產生的會越先被回收或銷毀，所以 Stack 非常適合做為這種可預測性的資料，如 <strong> 區域變數、函式參數與函式返回位址 </strong> 等等，的儲存容器。</p>
+<p>因為 Stack 中的資料生命週期都是 <strong> 規律 </strong> 的，所以由系統自行去產生和回收空間即可，程式設計師不需要介入。</p>
+<hr>
+<h1 id="Heap- 堆積、堆"><a href="#Heap- 堆積、堆" class="headerlink" title="Heap 堆積、堆"></a>Heap 堆積、堆 </h1><p> 還記得 <a href="http://blog.marksylee.com/2016/09/13/java-interview-01-program-process-thread/"><strong>前一章 </strong></a> 提到 <strong>Process 的 Memory Space 是專門儲存共享資料 / 資源</strong> 的嗎？Heap 就屬於這種共享資料。</p>
+<p>Class Type 在創建 <strong> 實例 (Instance)</strong> 時 (ex. <code>new User(&quot;Mark&quot;);</code>)，就是把資料放置於 Heap 中，系統會在 Heap 內找一塊區域放置此 User 實例的 <strong> 屬性資料</strong>，也因為 Heap 存放的是共享資料，所以不論該實例是由哪一個 Thread 所創建的，同 Process 底下的其他 Thread 也可以進行存取。</p>
+<p>因為實例的生命週期是不可預知的，系統較難以自行去回收空間，所幸，Java 的特色之一就是 <strong>Garbage Collection 機制 (簡稱 GC)</strong>，會自動去清理 Heap 內已經 <strong> 沒有被參考 (Reference)</strong> 的資料，當然，程式設計師可以撰寫程式去控制 GC 的行動，不過大多數情況下都 <strong> 不建議 </strong> 如此，過多的介入反而可能造成資源的浪費，未來 <del> 可能 </del> 會再寫一篇簡述 GC 是如何判斷哪些資料應該被清理。</p>
+<hr>
+<h1 id="範例"><a href="# 範例" class="headerlink" title="範例"></a>範例 </h1><p> 可能有人看到這邊仍是霧煞煞，以下我用簡單的程式來講解資料儲存實際上是如何運作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">123</span>;</span><br><span class="line"><span class="keyword">long</span> b = <span class="number">456L</span>;</span><br><span class="line">User c = <span class="keyword">new</span> User(<span class="string">"Mark"</span>, Gender.MALE);</span><br></pre></td></tr></table></figure>
+
+<p>以上程式碼的資料儲存順序大致上可以視為以下流程圖 <em>(在此先不考慮 Constant Pool)</em>。</p>
+<img src="/2016/09/14/java-interview-02-jvm-stack-heap/stack-heap-example2.PNG" title="example">
+
+<p>前兩行指令都是 Primitive Type，會在 Stack 內建立變數 <strong><em>a</em></strong> 和 <strong><em>b</em></strong>，並將實際值 <strong><em>123</em></strong> 和 <strong><em>456L</em></strong> 存放於變數內。</p>
+<p>第三行指令要切分成兩個部份，等號右邊及左邊，首先是右邊的部份，先以 <strong><em>name</em></strong> 和 <strong><em>gender</em></strong> 參數創建一個 User 實例，此時會在 Heap 中的一個位址 (ex. <strong><em>0x1234</em></strong>) 存放實例的屬性資料 (ex. <strong><em>name</em></strong>、<strong><em>gender</em></strong>、<strong><em>address</em></strong>…)，並將實例所在的記憶體位址 (<strong><em>0x1234</em></strong>) 指定給變數 <strong><em>c</em></strong> 參考。</p>
+<blockquote>
+<p>這篇是以變數為例子去比較兩者儲存方式的不同，至於「Stack 如何儲存函式」、「常數池 (Constant Pool) 是什麼」、「實例的 method 存放在哪」等等問題，留待後面文章再做解答。</p>
+</blockquote>
+<p>從以上的例子可以發現，Stack 內的變數值分為兩種類型，一種為 <strong>Value Type 實質類別 </strong>，儲存的是<strong> 實際的值 </strong> (ex. <strong><em>123</em></strong>、<strong><em>456L</em></strong>)；另一種為 <strong>Reference Type 參考類別</strong>，儲存的是<strong> 資料在 Heap 中的記憶體位址</strong> (ex. <strong><em>0x1234</em></strong>)。</p>
+<hr>
+<h1 id="總結"><a href="# 總結" class="headerlink" title="總結"></a>總結</h1><ol>
+<li>Stack 和 Heap 是 JVM 記憶體儲存資料或指令的區域。</li>
+<li>Java 的資料類型分為兩種：Primitive Type 和 Class Type。</li>
+<li>Stack 存取速度快，但資料長度及生命週期必須是預知的，用來儲存區域變數、函式參數與函式返回位址等資料。</li>
+<li>Heap 是 Class Type 創建實例時存放資料的地方，在 Heap 創建完成後會回傳所在的記憶體位址。</li>
+<li>變數可能是 Primitive Type 或 Class / Reference Type 。若是 Primitive Type，則在 Stack 內的變數值為實際值；若是 Class / Reference Type，實例資料會儲存在 Heap 中，Stack 內的變數值為實例在 Heap 中的記憶體位址。</li>
+<li><code>User user = new User(&quot;Mark&quot;);</code> 的行為簡單來說是：<br> i.    創建並儲存 <strong>User 實例 (<em>name = Mark</em>)</strong> 於 Heap 中。<br> ii.    儲存完成後，回傳資料所在的記憶體位址。<br> iii. 在 Stack 中新增變量 <strong><em>user</em></strong>。<br> iv.    將 ii. 所傳回的記憶體位址指定給 <strong><em>user</em></strong> 參考。</li>
+</ol>
+
+        
+        </div>
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
+</div>
+
+    <a data-url="http://blog.marksylee.com/2016/09/14/java-interview-02-jvm-stack-heap/" data-id="ckaunjmnh000g0a1bcysemn4s" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+        <a href="http://blog.marksylee.com/2016/09/14/java-interview-02-jvm-stack-heap/#comments" class="article-comment-link disqus-comment-count" data-disqus-url="http://blog.marksylee.com/2016/09/14/java-interview-02-jvm-stack-heap/">Comments</a>
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    Structures and Architectures for Optimizing Database (EN)
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2016/09/13/java-interview-01-program-process-thread/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Java 面試 01 - Program、Process 和 Thread</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">recent posts</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/05/31/reading-make-time/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/05/31/reading-make-time/make-time-cover.jpg)" alt="《生時間》讀書筆記" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Reading/">Reading</a></p>
+                            <p class="item-title"><a href="/2020/05/31/reading-make-time/" class="title">《生時間》讀書筆記</a></p>
+                            <p class="item-date"><time datetime="2020-05-30T16:11:30.000Z" itemprop="datePublished">2020-05-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/12/09/marbot-ch1-listen-to-mothers-words/orianthi-panagaris.jpg)" alt="MarBot Ch. 1 - Listen To Mother&#39;s Words" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/MarBot/">MarBot</a></p>
+                            <p class="item-title"><a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/" class="title">MarBot Ch. 1 - Listen To Mother&#39;s Words</a></p>
+                            <p class="item-date"><time datetime="2017-12-09T14:10:45.000Z" itemprop="datePublished">2017-12-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/10/13/shebang-the-default-command-for-file/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/10/13/shebang-the-default-command-for-file/tosin-abasi.jpg)" alt="Shebang：*nix 的使用預設程式執行" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Linux/">Linux</a></p>
+                            <p class="item-title"><a href="/2017/10/13/shebang-the-default-command-for-file/" class="title">Shebang：*nix 的使用預設程式執行</a></p>
+                            <p class="item-date"><time datetime="2017-10-12T16:36:09.000Z" itemprop="datePublished">2017-10-13</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/01/28/structures-n-architectures-for-optimizing-database-en/b-b-king.jpg)" alt="Structures and Architectures for Optimizing Database (EN)" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Database/">Database</a></p>
+                            <p class="item-title"><a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" class="title">Structures and Architectures for Optimizing Database (EN)</a></p>
+                            <p class="item-date"><time datetime="2017-01-27T16:44:03.000Z" itemprop="datePublished">2017-01-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/09/14/java-interview-02-jvm-stack-heap/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/09/14/java-interview-02-jvm-stack-heap/stack-heap-example1.PNG)" alt="Java 面試 02 - JVM 的 Stack 和 Heap" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Java/">Java</a></p>
+                            <p class="item-title"><a href="/2016/09/14/java-interview-02-jvm-stack-heap/" class="title">Java 面試 02 - JVM 的 Stack 和 Heap</a></p>
+                            <p class="item-date"><time datetime="2016-09-13T16:08:46.000Z" itemprop="datePublished">2016-09-14</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        <div id="recentcomments" class="widget-wrap">
+  <h3 class="widget-title">recent comments</h3>
+  <script type="text/javascript" src="http://prpg.disqus.com/recent_comments_widget.js?num_items=5&hide_avatars=0&avatar_size=32&excerpt_length=100&hide_mods=0"></script>
+</div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Life/Law/">Law</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/MarBot/">MarBot</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Reading/">Reading</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/">Technique</a><span class="category-list-count">18</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Database/">Database</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/HTML/">HTML</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Java/">Java</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Linux/">Linux</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Misc/">Misc</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/R/">R</a><span class="category-list-count">2</span></li></ul></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">14</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tags</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/adsl/">adsl</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ant/">ant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apache/">apache</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chatbot/">chatbot</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conf/">conf.</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-science/">data science</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gradle/">gradle</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ie/">ie</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interview/">interview</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-interview/">java_interview</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/library/">library</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linebot/">linebot</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/moocs/">moocs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/offenses-against-reputation/">offenses against reputation</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/productivity/">productivity</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/resource/">resource</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/transmission/">transmission</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wordpress/">wordpress</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/adsl/" style="font-size: 10px;">adsl</a> <a href="/tags/ant/" style="font-size: 10px;">ant</a> <a href="/tags/apache/" style="font-size: 15px;">apache</a> <a href="/tags/centos/" style="font-size: 20px;">centos</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/conf/" style="font-size: 10px;">conf.</a> <a href="/tags/data-science/" style="font-size: 10px;">data science</a> <a href="/tags/gradle/" style="font-size: 10px;">gradle</a> <a href="/tags/heroku/" style="font-size: 10px;">heroku</a> <a href="/tags/ie/" style="font-size: 10px;">ie</a> <a href="/tags/interview/" style="font-size: 15px;">interview</a> <a href="/tags/java-interview/" style="font-size: 15px;">java_interview</a> <a href="/tags/library/" style="font-size: 10px;">library</a> <a href="/tags/linebot/" style="font-size: 10px;">linebot</a> <a href="/tags/moocs/" style="font-size: 10px;">moocs</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/offenses-against-reputation/" style="font-size: 10px;">offenses against reputation</a> <a href="/tags/optimization/" style="font-size: 10px;">optimization</a> <a href="/tags/productivity/" style="font-size: 10px;">productivity</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/resource/" style="font-size: 10px;">resource</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/transmission/" style="font-size: 10px;">transmission</a> <a href="/tags/ubuntu/" style="font-size: 15px;">ubuntu</a> <a href="/tags/wordpress/" style="font-size: 10px;">wordpress</a>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2020 marksylee<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+        </div>
+    </div>
+</footer>
+        
+    
+    <script>
+    var disqus_shortname = 'prpg';
+    
+    
+    var disqus_url = 'http://blog.marksylee.com/2016/09/14/java-interview-02-jvm-stack-heap/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

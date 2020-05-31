@@ -68,13 +68,13 @@
       <category term="MarBot" scheme="http://blog.marksylee.com/categories/MarBot/"/>
     
     
+      <category term="python" scheme="http://blog.marksylee.com/tags/python/"/>
+    
       <category term="chatbot" scheme="http://blog.marksylee.com/tags/chatbot/"/>
     
       <category term="linebot" scheme="http://blog.marksylee.com/tags/linebot/"/>
     
       <category term="heroku" scheme="http://blog.marksylee.com/tags/heroku/"/>
-    
-      <category term="python" scheme="http://blog.marksylee.com/tags/python/"/>
     
   </entry>
   

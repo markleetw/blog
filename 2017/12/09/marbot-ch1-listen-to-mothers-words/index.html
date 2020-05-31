@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>MarBot Ch. 1 - Listen To Mother&#39;s Words | Programmer RPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="你是否有在通訊軟體 LINE 上被長輩騷擾的經驗呢？ 隨著智慧型手機的普及，長輩們使用通訊軟體、社群網站也越來越常見，但是隨之而來的各種假新聞分享、早安圖、午安圖、晚安圖、宵夜圖、感恩圖以及已讀不回躁鬱症，是否讓你深感困擾？ 接下來一系列的文章，你將學會如何自製一套媽寶機器人，讓你能夠輕鬆地開發出強勁的功能，如極速秒讀、智能敷衍回訊、定時問候語（問候圖），促使家庭氛圍和樂，解決以上提到的所有煩">
+<meta name="keywords" content="python,chatbot,linebot,heroku">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MarBot Ch. 1 - Listen To Mother&#39;s Words">
+<meta property="og:url" content="http://blog.marksylee.com/2017/12/09/marbot-ch1-listen-to-mothers-words/index.html">
+<meta property="og:site_name" content="Programmer RPG">
+<meta property="og:description" content="你是否有在通訊軟體 LINE 上被長輩騷擾的經驗呢？ 隨著智慧型手機的普及，長輩們使用通訊軟體、社群網站也越來越常見，但是隨之而來的各種假新聞分享、早安圖、午安圖、晚安圖、宵夜圖、感恩圖以及已讀不回躁鬱症，是否讓你深感困擾？ 接下來一系列的文章，你將學會如何自製一套媽寶機器人，讓你能夠輕鬆地開發出強勁的功能，如極速秒讀、智能敷衍回訊、定時問候語（問候圖），促使家庭氛圍和樂，解決以上提到的所有煩">
+<meta property="og:locale" content="zh-TW">
+<meta property="og:image" content="http://blog.marksylee.com/2017/12/09/marbot-ch1-listen-to-mothers-words/orianthi-panagaris.jpg">
+<meta property="og:updated_time" content="2020-05-31T05:49:48.149Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MarBot Ch. 1 - Listen To Mother&#39;s Words">
+<meta name="twitter:description" content="你是否有在通訊軟體 LINE 上被長輩騷擾的經驗呢？ 隨著智慧型手機的普及，長輩們使用通訊軟體、社群網站也越來越常見，但是隨之而來的各種假新聞分享、早安圖、午安圖、晚安圖、宵夜圖、感恩圖以及已讀不回躁鬱症，是否讓你深感困擾？ 接下來一系列的文章，你將學會如何自製一套媽寶機器人，讓你能夠輕鬆地開發出強勁的功能，如極速秒讀、智能敷衍回訊、定時問候語（問候圖），促使家庭氛圍和樂，解決以上提到的所有煩">
+<meta name="twitter:image" content="http://blog.marksylee.com/2017/12/09/marbot-ch1-listen-to-mothers-words/orianthi-panagaris.jpg">
+    
+
+    
+
+    
+        <link rel="icon" href="/css/images/favicon.ico">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/open-sans/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.1.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <script type="text/javascript">
+(function(i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function() {
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-79719838-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+    
+    
+    
+
+</head></html>
+<body>
+    <div id="container">
+        <header id="header">
+    <div id="header-main" class="header-inner">
+        <div class="outer">
+            <a href="/" id="logo">
+                <i class="logo"></i>
+                <span class="site-title">Programmer RPG</span>
+            </a>
+            <nav id="main-nav">
+                
+                    <a class="main-nav-link" href="/.">Home</a>
+                
+                    <a class="main-nav-link" href="/archives">Archives</a>
+                
+                    <a class="main-nav-link" href="/categories">Categories</a>
+                
+                    <a class="main-nav-link" href="/tags">Tags</a>
+                
+            </nav>
+            
+                
+                <nav id="sub-nav">
+                    <div class="profile" id="profile-nav">
+                        <a id="profile-anchor" href="javascript:;">
+                            <img class="avatar" src="/css/images/avatar.png" />
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                </nav>
+            
+            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="Type something..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: 'Posts',
+            PAGES: 'Pages',
+            CATEGORIES: 'Categories',
+            TAGS: 'Tags',
+            UNTITLED: '(Untitled)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+<script src="/js/insight.js"></script>
+
+</div>
+        </div>
+    </div>
+    <div id="main-nav-mobile" class="header-sub header-inner">
+        <table class="menu outer">
+            <tr>
+                
+                    <td><a class="main-nav-link" href="/.">Home</a></td>
+                
+                    <td><a class="main-nav-link" href="/archives">Archives</a></td>
+                
+                    <td><a class="main-nav-link" href="/categories">Categories</a></td>
+                
+                    <td><a class="main-nav-link" href="/tags">Tags</a></td>
+                
+                <td>
+                    
+    <div class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="Search" />
+    </div>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+</header>
+
+        <div class="outer">
+            
+                
+
+<aside id="profile">
+    <div class="inner profile-inner">
+        <div class="base-info profile-block">
+            <img id="avatar" src="/css/images/avatar.png" />
+            <h2 id="name">marksylee</h2>
+            <h3 id="title">Software Developer</h3>
+            <span id="location"><i class="fa fa-map-marker"></i>Taipei, Taiwan</span>
+            <a id="follow" target="_blank" href="https://github.com/marksylee/">FOLLOW</a>
+        </div>
+        <div class="article-info profile-block">
+            <div class="article-info-block">
+                21
+                <span>posts</span>
+            </div>
+            <div class="article-info-block">
+                25
+                <span>tags</span>
+            </div>
+        </div>
+        
+        <div class="profile-block social-links">
+            <table>
+                <tr>
+                    
+                    
+                    <td>
+                        <a href="http://github.com/marksylee/" target="_blank" title="github" class=tooltip>
+                            <i class="fa fa-github"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="http://stackoverflow.com/users/4737172/mark-lee/" target="_blank" title="stack-overflow" class=tooltip>
+                            <i class="fa fa-stack-overflow"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://fb.com/marksylee" target="_blank" title="facebook" class=tooltip>
+                            <i class="fa fa-facebook"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="https://tw.linkedin.com/in/marksylee/" target="_blank" title="linkedin" class=tooltip>
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                    </td>
+                    
+                    <td>
+                        <a href="/atom.xml" target="_blank" title="rss" class=tooltip>
+                            <i class="fa fa-rss"></i>
+                        </a>
+                    </td>
+                    
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</aside>
+
+            
+            <section id="main"><article id="post-marbot-ch1-listen-to-mothers-words" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+        
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+            MarBot Ch. 1 - Listen To Mother&#39;s Words
+        </h1>
+    
+
+                <div class="article-meta">
+                    
+    <div class="article-date">
+        <i class="fa fa-calendar"></i>
+        <a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/">
+            <time datetime="2017-12-09T14:10:45.000Z" itemprop="datePublished">2017-12-09</time>
+        </a>
+    </div>
+
+
+                    
+    <div class="article-category">
+    	<i class="fa fa-folder"></i>
+        <a class="article-category-link" href="/categories/MarBot/">MarBot</a>
+    </div>
+
+                    
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/chatbot/">chatbot</a>, <a class="tag-link" href="/tags/heroku/">heroku</a>, <a class="tag-link" href="/tags/linebot/">linebot</a>, <a class="tag-link" href="/tags/python/">python</a>
+    </div>
+
+                </div>
+            </header>
+        
+        <div class="article-entry" itemprop="articleBody">
+        
+            
+            <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/orianthi-panagaris.jpg" title="Orianthi Panagaris">
+
+<p>你是否有在通訊軟體 LINE 上被長輩騷擾的經驗呢？</p>
+<p>隨著智慧型手機的普及，長輩們使用通訊軟體、社群網站也越來越常見，但是隨之而來的各種假新聞分享、早安圖、午安圖、晚安圖、宵夜圖、感恩圖以及已讀不回躁鬱症，是否讓你深感困擾？</p>
+<p>接下來一系列的文章，你將學會如何自製一套媽寶機器人，讓你能夠輕鬆地開發出強勁的功能，如極速秒讀、智能敷衍回訊、定時問候語（問候圖），促使家庭氛圍和樂，解決以上提到的所有煩惱，更重要的是，不需要花到你一毛錢！（如果有很多個媽媽則另當別論）</p>
+<p><em>媽寶的原名是 MarBot，也就是 Mark’s Bot 的簡寫啦！</em></p>
+<p><strong>這一章節將介紹如何建立自己的機器人，並讓它成為長輩的應聲蟲。</strong></p>
+<blockquote>
+<p>請注意！因為篇幅有限，此系列無法針對每一項技術做詳盡的說明，僅能介紹開發過程中必備的知識。</p>
+</blockquote>
+<a id="more"></a>
+
+<hr>
+<blockquote>
+<p>先來首 BGM 吧！</p>
+<div class="video-container"><iframe src="//www.youtube.com/embed/9CRaXkB1EaE" frameborder="0" allowfullscreen></iframe></div>
+</blockquote>
+<h2 id="在開始之前，必須要做一些事前準備："><a href="# 在開始之前，必須要做一些事前準備：" class="headerlink" title="在開始之前，必須要做一些事前準備："></a>在開始之前，必須要做一些事前準備：</h2><ol>
+<li>註冊 LINE@ 帳號</li>
+<li>建立開發和部署環境<ul>
+<li>Python</li>
+<li>Heroku &amp; Git</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="註冊 -LINE＠- 帳號"><a href="# 註冊 -LINE＠- 帳號" class="headerlink" title="註冊 LINE＠ 帳號"></a>註冊 LINE＠ 帳號 </h2><p> 其實 LINE 機器人的基本概念並不複雜，簡而言之就是使用 LINE@ 帳號所提供的 Message API 來做到自動接受和發送訊息的功能。當 LINE@ 帳號接收到好友傳來的訊息，Message API 便會將訊息傳送至你所設定的網路服務（機器人）位址，而機器人就可以針對訊息的內容，來決定該如何回覆。</p>
+<p>LINE@ 就像是粉絲團、公眾號，你能夠透過 LINE@ 帳號與使用者交談、主動發送訊息，以誘騙年長者加好友送貼圖為最常見的應用。而 LINE@ 帳號的申請幾乎可以說是沒有門檻，只要你有 LINE 帳號就行了。</p>
+<blockquote>
+<p>LINE@ 帳號跟一般的 LINE 帳號是完全分開的，但因為 LINE@ 帳號並不需要設定密碼，而是透過 LINE 帳號作為管理員進行登入，所以在此才使用自己的 LINE 帳號來進行申請。</p>
+<p>如果你還想知道更多關於 LINE@ 的資訊，請前往 <a href="http://at.line.me/tw/" target="_blank" rel="noopener"> 官方網站</a>。</p>
+</blockquote>
+<ol>
+<li><p>首先進入 <a href="https://entry-at.line.me/" target="_blank" rel="noopener">LINE@ 註冊頁面 </a> 點選<strong> 開始使用一般帳號</strong></p>
+</li>
+<li><p>登入你個人的 LINE 帳號</p>
+</li>
+<li><p>跟著步驟填入所需的資料</p>
+<blockquote>
+<ul>
+<li><p>請不用擔心，本文所介紹的 LINE 機器人製作方式是完全免費的（<strong>Developer Trial</strong>或 <strong> 免費版 </strong>），當然你可以隨時根據自己的需求更改為付費方案，但是基本上，進階的付費功能主要是提供給商業用戶使用，你可以查看<a href="http://at.line.me/tw/plan" target="_blank" rel="noopener">LINE@方案介紹</a> 了解更多詳情。</p>
+</li>
+<li><p>因為帳號申請的過程全都有中文說明，照理說應不會遇到困難，但若是需要更詳盡的申請教學，可以參閱 <a href="http://at-blog.line.me/tw/archives/58236627.html" target="_blank" rel="noopener">LINE 官方部落格的教學文章</a>。</p>
+</li>
+</ul>
+</blockquote>
+</li>
+<li><p>申請完 LINE@ 帳號後，便可以從 <a href="https://entry-at.line.me/" target="_blank" rel="noopener"> 官網 </a> 點選右上方的 <strong> 管理後台</strong>，使用私人 LINE 帳號登入。</p>
+ <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/line@-panel.png" title="LINE@ 管理後台">
+</li>
+<li><p>進入 LINE@ 後台管理介面後，可以在下方的 <strong> 帳號一覽 </strong> 中，看到剛剛所申請的 LINE@ 帳號，點選該帳號後，就可以開始對它進行設定。</p>
+ <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/line@-dashboard.png" title="LINE@ 帳號一覽">
+</li>
+<li><p>為了取信長輩，必須讓 LINE@ 帳號看起來像是個普通私人帳號，所以請先至「帳號管理 &gt; 基本設定」修改帳號名稱、顯示圖片、狀態等等，讓 LINE@ 帳號看起來像是你的私人帳號。</p>
+ <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/line@-general-settings.png" title="基本設定">
+
+</li>
+</ol>
+<p>至此，LINE@ 的設定暫時告一段落。</p>
+<hr>
+<h2 id="建立開發和部署環境"><a href="# 建立開發和部署環境" class="headerlink" title="建立開發和部署環境"></a>建立開發和部署環境 </h2><h3 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h3><p> 本系列介紹的機器人開發，是使用 Python 作為主要開發語言，因本篇的主旨並非 Python 教學，所以我只會快速帶過，不再做詳盡的解說，以介紹步驟為主。</p>
+<ul>
+<li><p><strong>Windows</strong></p>
+<p>  首先前往 <a href="https://www.python.org/downloads/windows/" target="_blank" rel="noopener">Python 官網 </a> ，根據你目前使用的 OS，選擇 <strong>Windows x86 executable installer</strong>（32bit） 或 <strong>Windows x86-64 executable installer</strong>（64bit） 進行下載和安裝。<strong> 請特別注意</strong>，在安裝時請勾選 <strong>Add Python to PATH</strong> 這個選項。</p>
+<p>  <em>進階：可以使用 MIT 的 Python 版本管理工具 <a href="https://gist.github.com/uranusjr/91969cb2826d11d8e9e8f636b9ac1b97" target="_blank" rel="noopener">SNAFU</a>。</em></p>
+</li>
+<li><p><strong>macOS</strong></p>
+<p>  在 macOS 上，我會建議使用 <a href="https://brew.sh/index_zh-tw.html" target="_blank" rel="noopener">Homebrew</a> 來安裝 Python，可以方便、快速的安裝、升級、刪除任何你所需要的套件、工具。</p>
+<p>  官方網站已有詳細的 <a href="https://brew.sh/index_zh-tw.html" target="_blank" rel="noopener"> 中文教學</a>，根據教學步驟安裝完之後，請在終端機輸入</p>
+<p>  <code>brew install python3</code></p>
+<p>  <em>進階：可以使用 Python 管理工具 <a href="https://github.com/pyenv/pyenv" target="_blank" rel="noopener">pyenv</a> 或 <a href="https://github.com/pypa/pipenv" target="_blank" rel="noopener">pipenv</a>。</em></p>
+</li>
+<li><p><strong>Linux</strong></p>
+<p>  Linux 的用戶應該不需要我教如何安裝 Python 了（懶）。</p>
+</li>
+</ul>
+<blockquote>
+<p>環境建置是一個非常枯燥、佔用篇幅且意外狀況很多的部分，所以我不打算教得太深入，以能夠解決大多數狀況為主，所以如果你是 Python 新手，在沒有人指導或是資訊基礎的情況下，不建議直接使用 <strong> 進階 </strong> 的工具，很容易因為不熟悉而產生錯誤引起挫敗感。如果在過程中有遇到任何問題，歡迎在下方留言，我會盡力幫忙。</p>
+</blockquote>
+<p>至此，Python 應該已經安裝完成了，為了驗證是否可以使用 Python，請打開 <strong> 終端機 </strong> 或<strong>命令提示字元</strong>，輸入</p>
+<p><code>python3 --version</code></p>
+<p>如果有回覆</p>
+<p><code>Python 3.6.3</code></p>
+<p>恭喜你，可以進行下一步了。</p>
+<blockquote>
+<p>Windows 用戶請注意，安裝任何軟體（包含 Python 和後面會介紹的所有工具），安裝完後都必須要重新開啟命令提示字元，指令才能正常生效喔！</p>
+</blockquote>
+<h3 id="Heroku-amp-Git"><a href="#Heroku-amp-Git" class="headerlink" title="Heroku &amp; Git"></a>Heroku &amp; Git</h3><p>Heroku 是一套 PaaS 雲端服務平台，讓使用者可以快速部署服務（程式）到雲端上，除了簡單易用之外，更重要的是，它所提供的免費方案完全能夠滿足媽寶機器人的需求。</p>
+<ol>
+<li><p>前往 <a href="https://signup.heroku.com/" target="_blank" rel="noopener">Heroku 的官網 </a> 註冊帳號，註冊方式非常簡單，只需要填寫基本資料就可以了，完全不需要填寫信用卡等財務相關資訊。</p>
+ <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/heroku-register.png" title="Heroku Sign up">
+</li>
+<li><p>送出註冊表格後，應會收到系統發出的認證信，認證後便完成了帳號註冊。</p>
+</li>
+<li><p>接下來就可以建立一套屬於自己的服務。首先前往 <a href="https://dashboard.heroku.com/apps" target="_blank" rel="noopener">Heroku</a> 登入剛剛所申請的帳號，在首次登入時，因為我們未曾建立過任何服務，所以會看到以下的畫面。</p>
+ <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/heroku-onboarding.png" title="Heroku Onboarding">
+</li>
+<li><p>點選 <strong>Create New App</strong>，並依照提示輸入 App name 和選擇 US 後點選 <strong>Create app</strong> 送出。</p>
+ <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/heroku-create-new-app.png" title="Create New App">
+</li>
+<li><p>就這麼簡單，我們已經建立好一個空服務了！網頁會自動將你導向簡易的說明頁面，建議你可以快速地閱讀它，我知道你可能會看得一頭霧水，別擔心，繼續跟著後面的步驟做吧！</p>
+ <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/heroku-deploy-page.png" title="Heroku Deploy Page">
+</li>
+<li><p>接下來要安裝 Heroku Cli，它是一套 Heroku 管理工具，簡單來說是可以讓你可以下指令去命令電腦把服務（機器人）部署上 Heroku、查看服務狀態等等。</p>
+<p> 根據系統不同而有不同的安裝方式，詳情請參閱 <a href="https://devcenter.heroku.com/articles/heroku-cli" target="_blank" rel="noopener"> 官方說明 </a>。基本上類似於 Python 安裝方式，Ｗindows <a href="https://devcenter.heroku.com/articles/heroku-cli#windows" target="_blank" rel="noopener"> 在此選擇 </a> 32bit 或 64bit 安裝檔下載安裝。而 macOS 則是<a href="https://devcenter.heroku.com/articles/heroku-cli#macos" target="_blank" rel="noopener"> 建議 </a> 使用 Homebrew 來進行安裝，指令如下：</p>
+<p> <code>brew install heroku/brew/heroku</code></p>
+</li>
+<li><p>安裝完 Heroku Cli 之後，便可以登入剛剛申請的帳號，只要在 <strong> 終端機 </strong> 或<strong>命令提示字元 </strong> 輸入 <code>heroku login</code> 並根據提示輸入帳號密碼即可。</p>
+</li>
+<li><p>最後，需要安裝開發者必備的版本控管工具 <a href="https://git-scm.com/" target="_blank" rel="noopener">Git</a>。在此安裝 Git 的目的並非只是為了版本控管，而是 Heroku Cli 在部分操作上需要與 Git 配合，後面會再解說。</p>
+<p> 安裝的步驟就不再贅述，Windows 一樣前往 <a href="https://git-scm.com/download/win" target="_blank" rel="noopener"> 頁面 </a> 選擇對應的版本來下載安裝(如果看不懂可以先按 Next 到底）；而 macOS 用戶則使用 Homebrew（知道它有多方便了吧！），指令我想你應該也猜得出來了。</p>
+<p> <code>brew install git</code></p>
+</li>
+</ol>
+<p>恭喜你，環境建置終於結束啦！</p>
+<hr>
+<h2 id="正式進入開發"><a href="# 正式進入開發" class="headerlink" title="正式進入開發"></a>正式進入開發</h2><blockquote>
+<p>將以下指令內的 <code>your-app-name</code> 改為 Heroku 上的 App name</p>
+</blockquote>
+<ol>
+<li><p>首先找個風水寶地將我們先前建立的 Heroku 服務下載下來</p>
+<ul>
+<li><p><strong>Windows</strong></p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\mark&gt; D:</span><br><span class="line">D:\&gt; heroku git:clone --app your-app-name</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>macOS / Linux</strong></p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">~$ cd ~/Documents</span><br><span class="line">~/Document$ heroku git:clone --app you-app-name</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>執行完後，此時你的目錄下會多出一個 <code>your-app-name</code> 的資料夾</p>
+</li>
+<li><p>在資料夾下建立四個檔案，分別是</p>
+<ul>
+<li>runtime.txt</li>
+<li>requirements.txt</li>
+<li>Procfile</li>
+<li>your-app-name.py</li>
+</ul>
+</li>
+<li><p>此時你的檔案結構應該會 <strong> 類似 </strong> 這樣</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">D:\marbot-demo （或 ~/Documents/marbot-demo）</span><br><span class="line">    - runtime.txt</span><br><span class="line">    - requirements.txt</span><br><span class="line">    - marbot-demo.py</span><br><span class="line">    - Procfile</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>編輯 <strong>runtime.txt</strong>，使其內容如下：</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python-3.6.3</span><br></pre></td></tr></table></figure>
+
+<p>這邊應該不難理解，就是讓 Heroku 知道你的程式是用 Python 3.6.3 版所撰寫，Heroku 會在部署時將 Python 環境準備好。</p>
+</li>
+<li><p>編輯 <strong>requiremenst.txt</strong>，使其內容如下：</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Flask==0.12</span><br><span class="line">gunicorn==19.6.0</span><br><span class="line">line-bot-sdk==1.5.0</span><br></pre></td></tr></table></figure>
+
+<p>這邊是列出機器人所需要的三個套件，前兩個建立 Python 網路服務的基本套件，Flask 是一套輕量級的 WEB 框架，而 gunicorn 則是 Python WSGI HTTP Server，第三項則是 LINE 官方所提供的 Python 開發套件（看不懂沒關係，不影響開發，未來有機會再介紹）。</p>
+</li>
+<li><p>編輯 <strong>Procfile</strong>，使其內容如下：</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">web gunicorn your-app-name:app</span><br></pre></td></tr></table></figure>
+
+<p> 這邊是告訴 Heroku，你建立的網路服務是跑在 gunicorn Server 上，且主程式為 <code>your-app-name</code>。請注意，必須要跟 <strong>your-app-name.py</strong> 同檔名。</p>
+</li>
+<li><p>最後，就是我們的主角 <strong>your-app-name.py</strong> 啦！</p>
+<p> 因為篇幅較長，我將簡單的說明寫在註解內，如果看不懂也可以直接跳過閱讀，先讓機器人上線再說。</p>
+ <script src="https://gist-it.appspot.com/github/marksylee/marbot-demo/blob/ch1-listen-to-mothers-words/marbot-demo.py"></script>
+
+</li>
+</ol>
+<blockquote>
+<p>如果對於這四支檔案還有任何疑惑，請至 <a href="https://github.com/marksylee/marbot-demo/tree/ch1-listen-to-mothers-words" target="_blank" rel="noopener"> 這裡 </a> 觀看實際範例，或是在下方留言詢問。</p>
+</blockquote>
+<hr>
+<h2 id="部署 -Heroku- 以及串接 -Message-API"><a href="# 部署 -Heroku- 以及串接 -Message-API" class="headerlink" title="部署 Heroku 以及串接 Message API"></a>部署 Heroku 以及串接 Message API</h2><ol>
+<li><p>首先，請回到 <a href="https://admin-official.line.me" target="_blank" rel="noopener">LINE@ 後台管理頁面 </a> 並點選 LINE@ 帳號，進入「帳號設定 &gt; Message API 設定」。由於你的 LINE@ 帳號尚未開通 Message API，請先按照網頁指示啟用後，點擊進入最下方的 <strong>LINE Developers</strong>。</p>
+ <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/line@-message-api-settings.png" title="Message API 設定">
+</li>
+<li><p>進入 LINE Developers，會看到一系列的 Channel Settings 設定。請依照指示填入資料，但其中有幾個部分特別重要：</p>
+ <img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/line@-channel-settings.png" title="Channel Settings">
+
+<ul>
+<li><p><strong>Plan</strong><br>  有 Developer Trial 和 Free 可供選擇，它們之間的差異在網頁上已有說明。Developer Trial 可以主動發送訊息給使用者，但最多只能擁有 50 位好友；Free 方案可以有無限多的好友，但無法主動發送訊息給使用者（換句話說：只能回嘴，不能主動問候）。如果僅是自娛娛人，建議使用 Developer Trial 可以享受到比較豐富的功能。</p>
+</li>
+<li><p><strong>Channel secret</strong><br>  這是機器人是否能 <strong> 接收並解讀</strong> Message API 資料的關鍵，請將它妥善保存並將它取代 <strong>your-app-name.py</strong> 內的 <code>LINEBOT_CHANNEL_SECRET</code>。</p>
+</li>
+<li><p><strong>Channel access token</strong><br>  這是機器人用來 <strong> 發送、回覆訊息 </strong> 的密鑰，請按下右方的 <strong>ISSUE</strong> 申請一組新密鑰，並選擇是否讓它定時過期（過期就必須重新申請），取得後請妥善保存並將它取代 <strong>your-app-name.py</strong> 內的 <code>LINEBOT_CHANNEL_ACCESS_TOKEN</code>。</p>
+</li>
+<li><p><strong>Use webhooks</strong><br>  當 LINE@ 收到訊息時，是否將訊息傳送至指定服務（機器人），請修改設定為 <strong>Enabled</strong>。</p>
+</li>
+<li><p><strong>Webhook URL</strong><br>  此設定與上一個相關，當 <strong>Use webhooks</strong> 啟動時，Message API 會將訊息傳送至 <strong>Webhook URL</strong>，請填入<br>  <code>https://your-app-name.herokuapp.com/callback</code><br>  （切記將 your-app-name 改為你在 Heroku 所設定的 App name）</p>
+</li>
+<li><p><strong>Allow bot to join group chats</strong><br>  媽寶機器人是否可以被加入群組聊天，請依需求自行決定是否要啟動。</p>
+</li>
+<li><p><strong>Auto-reply messages</strong> 和 <strong>Greeting messages</strong><br>  兩者皆設定為 <strong>Disabled</strong>。</p>
+</li>
+<li><p><strong>QR code</strong><br>  顧名思義就是 LINE@ 的 QR code，掃描後就可以加入好友。</p>
+</li>
+</ul>
+</li>
+<li><p>修改完資料後，請先別急著關閉頁面。回到終端機或命令提示字元，將路徑移動至專案路徑下</p>
+<ul>
+<li><p>Windows</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\mark&gt; D:</span><br><span class="line">D:\&gt; cd your-app-name</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>macOS / Linux</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">~$ cd ~/Documents/your-app-name</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>依序執行以下指令，將機器人部署至 Heroku</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br><span class="line">git commit -m &apos;first commit&apos;</span><br><span class="line">git push heroku master:master</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>等待 Heroku 部署完後，回到剛剛的 LINE Developers 頁面，按下 <strong>Webhook URL</strong> 旁的 <strong>Verify</strong>。如果機器人有部署成功，應會出現 <strong>Success</strong> 字樣。</p>
+</li>
+<li><p>將 LINE@ QR code 分享給他人（也可以自己使用），並開始享受清靜的時光吧！</p>
+</li>
+</ol>
+<img src="/2017/12/09/marbot-ch1-listen-to-mothers-words/marbot-demo.png" title="DEMO">
+
+<h3 id="真是…真是太棒了…"><a href="# 真是…真是太棒了…" class="headerlink" title="真是…真是太棒了…"></a>真是…真是太棒了…</h3><hr>
+<blockquote>
+<ul>
+<li><p>第一次寫如此長篇的教學，可能有所遺漏，請不吝指教！</p>
+</li>
+<li><p>應該沒有人會真的拿這個機器人去唬弄長輩吧…</p>
+</li>
+</ul>
+</blockquote>
+
+        
+        </div>
+        <footer class="article-footer">
+            <div class="share-container">
+
+
+
+</div>
+
+    <a data-url="http://blog.marksylee.com/2017/12/09/marbot-ch1-listen-to-mothers-words/" data-id="ckaunjmo800190a1bd4diwvgq" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        // Prevent duplicate binding
+        if (typeof(__SHARE_BUTTON_BINDED__) === 'undefined' || !__SHARE_BUTTON_BINDED__) {
+            __SHARE_BUTTON_BINDED__ = true;
+        } else {
+            return;
+        }
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="fa fa-twitter article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="fa fa-facebook article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="fa fa-pinterest article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="fa fa-google article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+            
+    
+        <a href="http://blog.marksylee.com/2017/12/09/marbot-ch1-listen-to-mothers-words/#comments" class="article-comment-link disqus-comment-count" data-disqus-url="http://blog.marksylee.com/2017/12/09/marbot-ch1-listen-to-mothers-words/">Comments</a>
+    
+
+        </footer>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/05/31/reading-make-time/" id="article-nav-newer" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Newer</strong>
+            <div class="article-nav-title">
+                
+                    《生時間》讀書筆記
+                
+            </div>
+        </a>
+    
+    
+        <a href="/2017/10/13/shebang-the-default-command-for-file/" id="article-nav-older" class="article-nav-link-wrap">
+            <strong class="article-nav-caption">Older</strong>
+            <div class="article-nav-title">Shebang：*nix 的使用預設程式執行</div>
+        </a>
+    
+</nav>
+
+
+    
+</article>
+
+
+    
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    </div>
+
+    
+    </section>
+
+</section>
+            
+                <aside id="sidebar">
+   
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">recent posts</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/05/31/reading-make-time/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2020/05/31/reading-make-time/make-time-cover.jpg)" alt="《生時間》讀書筆記" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Reading/">Reading</a></p>
+                            <p class="item-title"><a href="/2020/05/31/reading-make-time/" class="title">《生時間》讀書筆記</a></p>
+                            <p class="item-date"><time datetime="2020-05-30T16:11:30.000Z" itemprop="datePublished">2020-05-31</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/12/09/marbot-ch1-listen-to-mothers-words/orianthi-panagaris.jpg)" alt="MarBot Ch. 1 - Listen To Mother&#39;s Words" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/MarBot/">MarBot</a></p>
+                            <p class="item-title"><a href="/2017/12/09/marbot-ch1-listen-to-mothers-words/" class="title">MarBot Ch. 1 - Listen To Mother&#39;s Words</a></p>
+                            <p class="item-date"><time datetime="2017-12-09T14:10:45.000Z" itemprop="datePublished">2017-12-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/10/13/shebang-the-default-command-for-file/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/10/13/shebang-the-default-command-for-file/tosin-abasi.jpg)" alt="Shebang：*nix 的使用預設程式執行" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Linux/">Linux</a></p>
+                            <p class="item-title"><a href="/2017/10/13/shebang-the-default-command-for-file/" class="title">Shebang：*nix 的使用預設程式執行</a></p>
+                            <p class="item-date"><time datetime="2017-10-12T16:36:09.000Z" itemprop="datePublished">2017-10-13</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2017/01/28/structures-n-architectures-for-optimizing-database-en/b-b-king.jpg)" alt="Structures and Architectures for Optimizing Database (EN)" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Database/">Database</a></p>
+                            <p class="item-title"><a href="/2017/01/28/structures-n-architectures-for-optimizing-database-en/" class="title">Structures and Architectures for Optimizing Database (EN)</a></p>
+                            <p class="item-date"><time datetime="2017-01-27T16:44:03.000Z" itemprop="datePublished">2017-01-28</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2016/09/14/java-interview-02-jvm-stack-heap/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/2016/09/14/java-interview-02-jvm-stack-heap/stack-heap-example1.PNG)" alt="Java 面試 02 - JVM 的 Stack 和 Heap" class="thumbnail-image"></span>
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Technique/">Technique</a><i class="fa fa-angle-right"></i><a class="article-category-link" href="/categories/Technique/Java/">Java</a></p>
+                            <p class="item-title"><a href="/2016/09/14/java-interview-02-jvm-stack-heap/" class="title">Java 面試 02 - JVM 的 Stack 和 Heap</a></p>
+                            <p class="item-date"><time datetime="2016-09-13T16:08:46.000Z" itemprop="datePublished">2016-09-14</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+    
+        <div id="recentcomments" class="widget-wrap">
+  <h3 class="widget-title">recent comments</h3>
+  <script type="text/javascript" src="http://prpg.disqus.com/recent_comments_widget.js?num_items=5&hide_avatars=0&avatar_size=32&excerpt_length=100&hide_mods=0"></script>
+</div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Life/Law/">Law</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/MarBot/">MarBot</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Reading/">Reading</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/">Technique</a><span class="category-list-count">18</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Database/">Database</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/HTML/">HTML</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Java/">Java</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Linux/">Linux</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/Misc/">Misc</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Technique/R/">R</a><span class="category-list-count">2</span></li></ul></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/09/">九月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">14</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tags</h3>
+        <div class="widget">
+            <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/adsl/">adsl</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ant/">ant</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/apache/">apache</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/centos/">centos</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chatbot/">chatbot</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/conf/">conf.</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/data-science/">data science</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gradle/">gradle</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/heroku/">heroku</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ie/">ie</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/interview/">interview</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java-interview/">java_interview</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/library/">library</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/linebot/">linebot</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/moocs/">moocs</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mysql/">mysql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/offenses-against-reputation/">offenses against reputation</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/optimization/">optimization</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/productivity/">productivity</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/resource/">resource</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql/">sql</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/transmission/">transmission</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/wordpress/">wordpress</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+    
+        
+    <div class="widget-wrap">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/adsl/" style="font-size: 10px;">adsl</a> <a href="/tags/ant/" style="font-size: 10px;">ant</a> <a href="/tags/apache/" style="font-size: 15px;">apache</a> <a href="/tags/centos/" style="font-size: 20px;">centos</a> <a href="/tags/chatbot/" style="font-size: 10px;">chatbot</a> <a href="/tags/conf/" style="font-size: 10px;">conf.</a> <a href="/tags/data-science/" style="font-size: 10px;">data science</a> <a href="/tags/gradle/" style="font-size: 10px;">gradle</a> <a href="/tags/heroku/" style="font-size: 10px;">heroku</a> <a href="/tags/ie/" style="font-size: 10px;">ie</a> <a href="/tags/interview/" style="font-size: 15px;">interview</a> <a href="/tags/java-interview/" style="font-size: 15px;">java_interview</a> <a href="/tags/library/" style="font-size: 10px;">library</a> <a href="/tags/linebot/" style="font-size: 10px;">linebot</a> <a href="/tags/moocs/" style="font-size: 10px;">moocs</a> <a href="/tags/mysql/" style="font-size: 10px;">mysql</a> <a href="/tags/offenses-against-reputation/" style="font-size: 10px;">offenses against reputation</a> <a href="/tags/optimization/" style="font-size: 10px;">optimization</a> <a href="/tags/productivity/" style="font-size: 10px;">productivity</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/resource/" style="font-size: 10px;">resource</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/transmission/" style="font-size: 10px;">transmission</a> <a href="/tags/ubuntu/" style="font-size: 15px;">ubuntu</a> <a href="/tags/wordpress/" style="font-size: 10px;">wordpress</a>
+        </div>
+    </div>
+
+    
+    <div id="toTop" class="fa fa-angle-up"></div>
+</aside>
+            
+        </div>
+        <footer id="footer">
+    <div class="outer">
+        <div id="footer-info" class="inner">
+            &copy; 2020 marksylee<br>
+            Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="http://github.com/ppoffice">PPOffice</a>
+        </div>
+    </div>
+</footer>
+        
+    
+    <script>
+    var disqus_shortname = 'prpg';
+    
+    
+    var disqus_url = 'http://blog.marksylee.com/2017/12/09/marbot-ch1-listen-to-mothers-words/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
