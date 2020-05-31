@@ -81,7 +81,7 @@ theme: skyraker
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
-deploy:
-  type: git
-  repo: git@github.com:marksylee/marksylee.github.io
-  branch: gh-pages
+# deploy:
+#   type: git
+#   repo: git@github.com:marksylee/marksylee.github.io
+#   branch: gh-pages
