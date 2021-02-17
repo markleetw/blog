@@ -6,6 +6,7 @@ categories:
 - Linux
 tags:
 - apache
+redirect: https://blog.marklee.tw/apache-proxy-forward-reverse
 ---
 
 {% asset_img eric-clapton.jpg Eric Clapton %}
